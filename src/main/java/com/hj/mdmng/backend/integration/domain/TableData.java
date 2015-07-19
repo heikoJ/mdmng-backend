@@ -1,6 +1,9 @@
 package com.hj.mdmng.backend.integration.domain;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hj.mdmng.rest.json.TableDataSerializer;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +33,7 @@ public class TableData {
     }
 
     public Value<?> getPrimaryKeyValue() {
-        return getValue(table.getPrimaryKeyColumn());
+        return getValue(table.getPrimaryKeyOrThrowException());
     }
 
 
@@ -46,4 +49,10 @@ public class TableData {
 
         return sb.toString();
     }
+
+
+    public MdmTable getMetaTable() {
+        return table;
+    }
+
 }

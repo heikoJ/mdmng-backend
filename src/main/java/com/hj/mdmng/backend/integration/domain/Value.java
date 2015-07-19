@@ -13,7 +13,7 @@ public class Value<T> {
         this.value = value;
     }
 
-    T value() {
+    public T value() {
         return value;
     }
 

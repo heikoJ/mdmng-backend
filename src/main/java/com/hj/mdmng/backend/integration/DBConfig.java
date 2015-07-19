@@ -1,10 +1,16 @@
 package com.hj.mdmng.backend.integration;
 
+import net.sf.ehcache.CacheManager;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,7 +33,24 @@ import java.util.Properties;
 @Configuration
 @ComponentScan("com.hj.mdmng.backend.integration")
 @EnableTransactionManagement
+@EnableCaching
 public class DBConfig {
+
+    @Bean
+    public EhCacheCacheManager cacheManager(CacheManager cm) {
+        return new EhCacheCacheManager(cm);
+    }
+
+    @Bean
+    public EhCacheManagerFactoryBean ehcache() {
+        EhCacheManagerFactoryBean ehCacheManagerFactoryBean =
+                new EhCacheManagerFactoryBean();
+        ehCacheManagerFactoryBean.setConfigLocation(new ClassPathResource("com/hj/mdmng/ehcache.xml"));
+
+        return ehCacheManagerFactoryBean;
+    }
+
+
     @Bean
     public DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()

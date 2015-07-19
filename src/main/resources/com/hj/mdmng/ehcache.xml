@@ -1,0 +1,7 @@
+<ehcache>
+    <cache name="sqlStatementCache"
+           maxBytesLocalHeap="50m"
+           timeToLiveSeconds="3600">
+
+    </cache>
+</ehcache>

@@ -1,5 +1,7 @@
 package com.hj.mdmng.backend.integration.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -7,6 +9,7 @@ import lombok.ToString;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -15,9 +18,10 @@ import java.util.Set;
 
 @Data
 @ToString(exclude="columns")
-@EqualsAndHashCode(callSuper = true, exclude="columns")
+@EqualsAndHashCode(callSuper = true, of="id")
 @Entity
 @Table(name="MDM_TABLE")
+@JsonIgnoreProperties({"primaryKeyOrThrowException"})
 public class MdmTable extends AbstractDomainObject {
 
     @Id
@@ -35,14 +39,43 @@ public class MdmTable extends AbstractDomainObject {
     @OneToMany(mappedBy="table",fetch = FetchType.EAGER )
     private Set<MdmColumn> columns;
 
-    public MdmColumn getPrimaryKeyColumn() {
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "table_tags",  joinColumns = {
+            @JoinColumn(name = "TABLE_ID", nullable = false, updatable = false) },
+            inverseJoinColumns = { @JoinColumn(name = "TAG_ID",
+                    nullable = false, updatable = false) })
+    private Set<Tag> tags;
+
+
+    public Optional<MdmColumn> getPrimaryKeyColumn() {
         for(MdmColumn column : columns) {
             if(column.isPrimaryKey()) {
+                return Optional.of(column);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public MdmColumn getPrimaryKeyOrThrowException () {
+        return getPrimaryKeyColumn().
+                orElseThrow(() -> new RuntimeException("no primary Key Column defined!"));
+    }
+
+    public boolean hasColumn(MdmColumn column) {
+        return columns.contains(column);
+    }
+
+
+    public MdmColumn getColumnByName(String name) {
+        for(MdmColumn column : columns) {
+            if(column.getName().equals(name)) {
                 return column;
             }
         }
 
-        throw new IllegalStateException("No primary key defined!");
+        return null;
     }
 
 

@@ -2,8 +2,11 @@ package com.hj.mdmng.backend.integration.dao;
 
 import com.hj.mdmng.backend.integration.domain.MdmColumn;
 import com.hj.mdmng.backend.integration.domain.MdmTable;
+import com.hj.mdmng.backend.integration.domain.SearchCriteria;
 import com.hj.mdmng.backend.integration.domain.TableData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -21,31 +24,35 @@ import java.util.Map;
 @Repository
 public class TableDao {
 
-    @Autowired
-    NamedParameterJdbcOperations jdbc;
 
     @Autowired
-    SqlService sqlService;
+    private SqlService sqlService;
 
 
 
     public TableData findByPrimaryKey(MdmTable table, Object primaryKey) {
-
-        Map<String,Object> parameters = new HashMap<>();
-        parameters.put("primaryKey",primaryKey);
-
-        return jdbc.queryForObject(
-                sqlService.getFindByPrimaryKeyStatement(table),
-                parameters,
-                new TableDataMapper(table));
+        return sqlService.findByPrimaryKey(table,primaryKey);
 
     }
 
-    public List<TableData> findAll(MdmTable table) {
-        return jdbc.query(
-                sqlService.getFindAllStatement(table),
-                new TableDataMapper(table));
+    public Long insertRecord(TableData data) {
+        return sqlService.insertRecord(data);
+    }
 
+    public List<TableData> findAll(MdmTable table) {
+        return sqlService.findAll(table);
+    }
+
+    public Page<TableData> findAll(MdmTable table, Pageable pageable) {
+        return sqlService.findAll(table,pageable);
+    }
+
+    public Page<TableData> findByCriteria(SearchCriteria criteria,Pageable pageable) {
+        return sqlService.findByCriteria(criteria,pageable);
+    }
+
+    public void updateRecord(TableData record) {
+        sqlService.updateRecord(record);
     }
 
 }
